@@ -1,4 +1,5 @@
 class SmartCar {
+    //Optionally takes network weights as parameters
     constructor(wih, who) {
         this.pos = createVector(110, 75);
         this.heading = 0;
@@ -18,6 +19,7 @@ class SmartCar {
         this.brake = false;
         this.turnMag = 0;
         
+        //Create vision rays
         this.rays = [];
         this.rays.push(new Ray(this.pos, -PI/2));
         this.rays.push(new Ray(this.pos, -PI/4));
@@ -26,18 +28,19 @@ class SmartCar {
         this.rays.push(new Ray(this.pos, PI/2));
         
         // 6 inputNodes -> 5 vision rays & current speed
-        // 10 hiddenNodes
+        // 6 hiddenNodes
         // 4 outputNodes -> turnLeft, turnRight, accelerate, brake
         if(wih === undefined) {
+            //New network with random weights
             this.brain = new NeuralNetwork(6, 6, 4);
         } else {
+            //New network with specified weights
             this.brain = new NeuralNetwork(6, 6, 4, wih, who);
         }
     }
     
     calcFitness() {
-        
-        this.fitness = (Math.pow(this.currentCheckPoint+1,2));// / this.checkPointTime;
+        this.fitness = (Math.pow(this.currentCheckPoint+1,2));
     }
     
     turn(angle) {
@@ -47,39 +50,13 @@ class SmartCar {
     getOutputs() {
         // set inputs
         let inputList = [];
-        
-        
         inputList[0] = this.speed;
         for(let i=0; i<this.vision.length; i++) {
             inputList[i+1] = this.vision[i];
-        }       
-        
-        
-        
-//        let scaledSpeed = (this.speed / this.maxSpeed) * 0.99 + 0.005;
-//        inputList[0] = scaledSpeed;
-//        
-//        let maxDis = 0;
-//        for(let i=0; i<this.vision.length; i++) {
-//            if(this.vision[i] > maxDis) {
-//                maxDis = this.vision[i];
-//            }
-//        }
-//        if(maxDis > 100) maxDis = 100;
-//        for(let i=0; i<this.vision.length; i++) {
-//            let visionDist = this.vision[i];
-//            if(visionDist > 100) visionDist = 100;
-//            let scaledVision = (visionDist / maxDis) * 0.99 + 0.01;
-//            inputList[i+1] = scaledVision;
-//        }
-        
+        }           
         
         // retrieve outputs
         let outputList = this.brain.query(inputList);
-        if(frameCount % 40 == 0) {
-            //console.log(inputList);
-            //console.log(outputList);
-        }
         
         // assign behaviour
         if(outputList[0] > 0.5) {
@@ -92,18 +69,6 @@ class SmartCar {
         } else {
             this.brake = false;
         }
-        //this.turnMag = outputList[2] - 0.5;
-        
-//        if(outputList[2] > 0.55) {
-//            this.turnLeft = true;
-//        } else {
-//            this.turnLeft = false;
-//        }
-//        if(outputList[3] > 0.55) {
-//            this.turnRight = true;
-//        } else {
-//            this.turnRight = false;
-//        }
         
         if(outputList[2] > 0.5 && outputList[2] > 1.05 * outputList[3]) {
             this.turnLeft = true;
@@ -161,7 +126,7 @@ class SmartCar {
         }
     }
     
-    
+    // Generates hitbox walls relative to car position and checks if they intersect any of the track walls or checkpoints
     hitbox(walls, checkPoints) {
         // x = rcosTheta     y = rsinTheta
         let theta = Math.atan(8/16);
@@ -173,7 +138,7 @@ class SmartCar {
         //front left
         let x2 = r * Math.cos(-theta + this.heading) + this.pos.x;
         let y2 = r * Math.sin(-theta + this.heading) + this.pos.y;
-        //fron right
+        //front right
         let x3 = r * Math.cos(theta + this.heading) + this.pos.x;
         let y3 = r * Math.sin(theta + this.heading) + this.pos.y;
         //back right
@@ -252,7 +217,7 @@ class SmartCar {
         }
     }
     
-    
+    // Calculate distances to the nearest track walls in vision ray directions
     look(walls) {
         if(!this.crashed){
             this.vision = [];
@@ -286,34 +251,12 @@ class SmartCar {
         } 
     }
     
-    
     render() {
         push();
         translate(this.pos.x, this.pos.y);
         rotate(this.heading);
         image(carImg,-16,-8,32,16);
-//        if(this.turnLeft) {
-//            stroke(0,200,0);
-//            line(-16,-8,16,-8);
-//        }
-//        if(this.turnRight) {
-//            stroke(0,200,0);
-//            line(-16,8,16,8);
-//        }
-//        if(this.accelerate) {
-//            stroke(0,200,0);
-//            line(16,-8,16,8);
-//        }
-//        if(this.brake) {
-//            stroke(200,20,0);
-//            line(-16,-8,-16,8);
-//        }
-        //image(carImg,-30,-15,60,30);
-        //(45,20)
         pop();
     }
-    
-    
-    
-    
+
 }

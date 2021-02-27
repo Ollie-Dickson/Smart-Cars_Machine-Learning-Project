@@ -11,6 +11,7 @@ class Population {
         }
     }
     
+    // check stop conditions
     allCrashed() {
         for(let car of this.cars) {
             if(count > 100) {
@@ -33,9 +34,9 @@ class Population {
         }
     }
     
+    //Evaluate fitness and create mating pool
     evaluate() {
         let maxFit = 0;
-        
         for (let i=0; i<this.popSize; i++) {
             this.cars[i].calcFitness();
             if(this.cars[i].fitness > maxFit) {
@@ -55,6 +56,7 @@ class Population {
         }
     }
     
+    // Select parents from mating pool and generate child cars using crossover and mutation
     selection() {
         let newCars = [];
         for (let i=0; i< this.cars.length; i++) {
@@ -99,6 +101,7 @@ class Population {
         return wpqNew;
     }
     
+    //Assign random weight values to 2% of the new weights
     mutation(wpq, pNodes, qNodes) {
         let wpqNew = [];
         for(let q=0; q<qNodes; q++) {

@@ -43,11 +43,10 @@ function preload() {
 
 function setup() {
     createCanvas(1000, 700);
-    //image(trackImg,0,0);
-    
     point1 = createVector();
     point2 = createVector();
     loadTrackData();
+    //Create track walls as boundary objects
     for(let i=0; i<point1Array.length; i++) {
         let x1 = int(point1Array[i].x);
         let y1 = int(point1Array[i].y);
@@ -55,11 +54,13 @@ function setup() {
         let y2 = int(point2Array[i].y);
         walls.push(new Boundary(x1, y1, x2, y2));
     }
+    //Add boundaries at edge of screen
     walls.push(new Boundary(0, 0, width, 0));
     walls.push(new Boundary(width, 0, width, height));
     walls.push(new Boundary(width, height, 0, height));
     walls.push(new Boundary(0, height, 0, 0));
     
+    //Create checkpoints as boundary objects
     for(let i=0; i<checkPoint1Array.length; i++) {
         let x1 = int(checkPoint1Array[i].x);
         let y1 = int(checkPoint1Array[i].y);
@@ -67,8 +68,7 @@ function setup() {
         let y2 = int(checkPoint2Array[i].y);
         checkPoints.push(new Boundary(x1, y1, x2, y2));
     }
-//    let numRows = trackData.getRowCount();
-//    console.log(numRows);
+    //Create smart car population and player car object
     population = new Population(popSize, walls, checkPoints);
     player = new Car();
 }
@@ -81,7 +81,7 @@ function draw() {
     player.render();
     player.hitbox(walls);
     
-    
+    // Draw text information at top of the screen
     let genText = "Generation: " + gen;
     let countText = "Time: " + count;
     let stopText = "Stop Counter: " + stopCounter;
@@ -96,19 +96,18 @@ function draw() {
     text(popText, 100, 10, 100, 15);
     if(frameCount > 1) {
         let frames = frameRate();
-        //console.log(frames);
         let frameText = "FrameRate: " + int(frames);
         text(frameText,210, 10, 100, 15);
     }
     stroke(93, 212, 34);
     text(visionText, 400, 10, 200, 15);
     
+    // Generate new population when stop conditions met
     if(population.allCrashed() || nextGen) {
         population.evaluate();
         population.selection();
         count = 0;
         gen ++;
-        //console.log(gen);
         nextGen = false;
         stopCounter = 0;
     }
@@ -123,7 +122,6 @@ function draw() {
         let col = color('rgb(0,200,0)');
         //checkPoint.show(col);
     }
-    
     
     if(saveOn) {
         //saveTrackData();
@@ -146,21 +144,11 @@ function saveTrackData() {
             print(trackData.getString(r, c));
     
     saveTable(trackData,"checkPoints2.csv","csv");
+    // This seems to be saving everything into 1 column for some reason
 }
 
-//    // p5 saveTable is broke as heck
-//    // everything saves in one column
-
-function loadTrackData() {
-//    let p1_x = trackData.getColumn('p1_x');
-//    let p1_y = trackData.getColumn('p1_y');
-//    let p2_x = trackData.getColumn('p2_x');
-//    let p2_y = trackData.getColumn('p2_y');
-//    for(let i=0; i<trackData.getRowCount(); i++) {
-//        console.log(p1_x[i] +" "+ p1_y[i] +" "+ p2_x[i] +" "+ p2_y[i] +"\n");
-//    }
-    
-    //console.log(trackData.getRowCount());
+function loadTrackData() {    
+    // For some reason the track data is being saved in a single column so this algorithm sorts through and extracts the data
     let n = 1;
     for(let i=3; i<trackData.getRowCount(); i++){
         if(n == 1) {
@@ -196,8 +184,6 @@ function loadTrackData() {
             n = 1;
         }
     }
-    //console.log(point1Array.length);
-    
 }
 
 // returns true if the line from (a,b)->(c,d) intersects with (p,q)->(r,s)
@@ -263,6 +249,7 @@ function keyReleased() {
     }
 }
 
+// This function allows the user to map out the track walls and checkpoints by drawing lines on the screen
 function mousePressed() {
     if(!shift && recordLines) {
         if(!drawing) {

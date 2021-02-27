@@ -9,11 +9,10 @@ class Ray {
         console.log(this.dir);
     }
     
-    
+    //Calculates the point where vision ray intersects given boundary
     cast(wall, heading) {
         // line intersection calculations
         // ref https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-        //console.log(this.dir);
         this.dir = p5.Vector.fromAngle(heading + this.angle);
         const x1 = wall.a.x;
         const y1 = wall.a.y;
